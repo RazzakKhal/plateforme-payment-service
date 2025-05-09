@@ -51,3 +51,4 @@ info:
   app:
     name: "payment-service"
     description: "payment service microservice"
+
