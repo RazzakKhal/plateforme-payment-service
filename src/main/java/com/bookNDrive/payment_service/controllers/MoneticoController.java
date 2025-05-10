@@ -3,6 +3,7 @@ package com.bookNDrive.payment_service.controllers;
 import com.bookNDrive.payment_service.configuration.MoneticoProperties;
 import com.bookNDrive.payment_service.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,9 +20,13 @@ import java.util.Map;
 public class MoneticoController {
 
 
-    private static final String URL_RETOUR = "http://votre-site.com/api/monetico/retour";
+    private static final String URL_RETOUR_OK = "/";
+    private static final String URL_RETOUR_KO = "/";
     private final PaymentService paymentService;
     private final MoneticoProperties moneticoProperties;
+
+    @Value("${monetico.key}")
+    private String test;
 
     @Autowired
     MoneticoController(PaymentService paymentService, MoneticoProperties monetico){
@@ -31,6 +36,8 @@ public class MoneticoController {
 
     @PostMapping("/initier")
     public Map<String, String> generatePaymentForm(@RequestParam String id) {
+
+        System.out.println("ceci est la key : " + test);
 
         String temporaryMail = "khalfallah.razzak@gmail.com";
 
@@ -47,8 +54,8 @@ public class MoneticoController {
         formParams.put("reference", id);
         formParams.put("lgue", "FR");
         formParams.put("societe", moneticoProperties.society());
-        formParams.put("url_retour_ok", URL_RETOUR + "?result=ok");
-        formParams.put("url_retour_err", URL_RETOUR + "?result=err");
+        formParams.put("url_retour_ok", URL_RETOUR_OK);
+        formParams.put("url_retour_err", URL_RETOUR_KO);
         formParams.put("texte-libre", "ceciestuntestdepaiement");
         formParams.put("mail", temporaryMail);
         formParams.put("contexte_commande", contexteBase64);
@@ -58,17 +65,17 @@ public class MoneticoController {
                 "TPE=" + moneticoProperties.tpe()
                         + "*" + "contexte_commande=" + contexteBase64
                         + "*" + "date=" + date
-                        + "*" + "dateech1=*dateech2=*dateech3=*dateech4="
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "montantech1=*montantech2=*montantech3=*montantech4=*nbrech="
                         + "*" + "reference=" + id
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
+                        + "*" + "url_retour_err=" + URL_RETOUR_KO
+                        + "*" + "url_retour_ok=" + URL_RETOUR_OK
                         + "*" + "version=" + moneticoProperties.version();
 
-        String mac = paymentService.calculateHMAC(dataToSign, moneticoProperties.key());
+        String mac = paymentService.generateMac(dataToSign, moneticoProperties.key());
         formParams.put("MAC", mac);
 
         return formParams;
@@ -79,7 +86,7 @@ public class MoneticoController {
     public String handlePaymentReturn(@RequestParam Map<String, String> params) {
         String macRecu = params.get("MAC");
         String dataToValidate = params.get("TPE") + "*" + params.get("date") + "*" + params.get("montant") + "*" + params.get("reference") + "*FR*" + params.get("societe") + "*";
-        String macCalcul = paymentService.calculateHMAC(dataToValidate, moneticoProperties.key());
+        String macCalcul = paymentService.generateMac(dataToValidate, moneticoProperties.key());
 
         if (macRecu != null && macRecu.equals(macCalcul)) {
             if ("paiement".equals(params.get("code-retour"))) {
