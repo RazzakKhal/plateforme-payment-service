@@ -51,7 +51,7 @@ public class MoneticoController {
         formParams.put("TPE", moneticoProperties.tpe());
         formParams.put("date", date);
         formParams.put("montant", "5" + "EUR");
-        formParams.put("reference", id);
+        formParams.put("reference", "1");
         formParams.put("lgue", "FR");
         formParams.put("societe", moneticoProperties.society());
         formParams.put("url_retour_ok", URL_RETOUR_OK);
@@ -60,7 +60,7 @@ public class MoneticoController {
         formParams.put("mail", temporaryMail);
         formParams.put("contexte_commande", contexteBase64);
 
-        // Calcul du sceau
+        // Calcul du sceau // a enregistrer en bdd pour pouvoir le vérifier sur lappel retour
         String dataToSign =
                 "TPE=" + moneticoProperties.tpe()
                         + "*" + "contexte_commande=" + contexteBase64
@@ -68,7 +68,7 @@ public class MoneticoController {
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + id
+                        + "*" + "reference=" + "1"
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
@@ -84,21 +84,42 @@ public class MoneticoController {
 
     @PostMapping("/retour")
     public String handlePaymentReturn(@RequestParam Map<String, String> params) {
+
+        System.out.println("les params : " + params);
         String macRecu = params.get("MAC");
-        String dataToValidate = params.get("TPE") + "*" + params.get("date") + "*" + params.get("montant") + "*" + params.get("reference") + "*FR*" + params.get("societe") + "*";
+
+        String temporaryMail = "khalfallah.razzak@gmail.com";
+
+        Map<String, String> formParams = new HashMap<>();
+        String date = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss").format(new Date());
+
+        String contexteBase64 = paymentService.contexteCommande();
+        String dataToValidate =
+                "TPE=" + moneticoProperties.tpe()
+                        + "*" + "contexte_commande=" + contexteBase64
+                        + "*" + "date=" + date
+                        + "*" + "lgue=FR"
+                        + "*" + "mail=" + temporaryMail
+                        + "*" + "montant=" + "5" + "EUR"
+                        + "*" + "reference=" + "1"
+                        + "*" + "societe=" + moneticoProperties.society()
+                        + "*" + "texte-libre=ceciestuntestdepaiement"
+                        + "*" + "url_retour_err=" + URL_RETOUR_KO
+                        + "*" + "url_retour_ok=" + URL_RETOUR_OK
+                        + "*" + "version=" + moneticoProperties.version();
         String macCalcul = paymentService.generateMac(dataToValidate, moneticoProperties.key());
 
         if (macRecu != null && macRecu.equals(macCalcul)) {
-            if ("paiement".equals(params.get("code-retour"))) {
+            if ("paiement".equals(params.get("code-retour")) || "payetest".equals(params.get("code-retour"))) {
                 // Paiement accepté
-                return "version=2\ncdr=0";
+                return "version=2\ncdr=0\n";
             } else {
                 // Paiement refusé
-                return "version=2\ncdr=1";
+                return "version=2\ncdr=1\n";
             }
         } else {
             // Signature invalide
-            return "version=2\ncdr=1";
+            return "version=2\ncdr=1\n";
         }
     }
 }
