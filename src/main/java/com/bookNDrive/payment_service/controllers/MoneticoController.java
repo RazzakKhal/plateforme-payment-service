@@ -44,6 +44,7 @@ public class MoneticoController {
         String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss"));
 
+        System.out.println("la date + : " + date);
         String contexteBase64 = paymentService.contexteCommande();
 
         // Création des paramètres du formulaire
