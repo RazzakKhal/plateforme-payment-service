@@ -52,7 +52,7 @@ public class MoneticoController {
         formParams.put("TPE", moneticoProperties.tpe());
         formParams.put("date", date);
         formParams.put("montant", "5" + "EUR");
-        formParams.put("reference", "23");
+        formParams.put("reference", "25");
         formParams.put("lgue", "FR");
         formParams.put("societe", moneticoProperties.society());
         formParams.put("url_retour_ok", URL_RETOUR_OK);
@@ -69,7 +69,7 @@ public class MoneticoController {
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "23"
+                        + "*" + "reference=" + "25"
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
@@ -103,7 +103,7 @@ public class MoneticoController {
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "23"
+                        + "*" + "reference=" + "25"
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
