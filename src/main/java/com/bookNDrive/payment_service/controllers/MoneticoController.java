@@ -52,7 +52,7 @@ public class MoneticoController {
         formParams.put("TPE", moneticoProperties.tpe());
         formParams.put("date", date);
         formParams.put("montant", "5" + "EUR");
-        formParams.put("reference", "25");
+        formParams.put("reference", "26");
         formParams.put("lgue", "FR");
         formParams.put("societe", moneticoProperties.society());
         formParams.put("url_retour_ok", URL_RETOUR_OK);
@@ -69,7 +69,7 @@ public class MoneticoController {
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "25"
+                        + "*" + "reference=" + "26"
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
@@ -89,29 +89,11 @@ public class MoneticoController {
         System.out.println("les params : " + params);
         String macRecu = params.get("MAC");
 
-        String temporaryMail = "khalfallah.razzak@gmail.com";
+        String dataToValidate = paymentService.dataConstructFromMoneticoReturn(params);
 
-        Map<String, String> formParams = new HashMap<>();
-        String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss"));
-
-        String contexteBase64 = paymentService.contexteCommande();
-        String dataToValidate =
-                "TPE=" + moneticoProperties.tpe()
-                        + "*" + "contexte_commande=" + contexteBase64
-                        + "*" + "date=" + date
-                        + "*" + "lgue=FR"
-                        + "*" + "mail=" + temporaryMail
-                        + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "25"
-                        + "*" + "societe=" + moneticoProperties.society()
-                        + "*" + "texte-libre=ceciestuntestdepaiement"
-                        + "*" + "url_retour_err=" + URL_RETOUR_KO
-                        + "*" + "url_retour_ok=" + URL_RETOUR_OK
-                        + "*" + "version=" + moneticoProperties.version();
         String macCalcul = paymentService.generateMac(dataToValidate, moneticoProperties.key());
 
-        if (macRecu != null && macRecu.equals(macCalcul)) {
+        if (macCalcul.equalsIgnoreCase(macRecu)) {
             if ("paiement".equals(params.get("code-retour")) || "payetest".equals(params.get("code-retour"))) {
                 // Paiement accepté
                 System.out.println("paiement accepté");
