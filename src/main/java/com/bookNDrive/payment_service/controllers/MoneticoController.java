@@ -52,7 +52,7 @@ public class MoneticoController {
         formParams.put("TPE", moneticoProperties.tpe());
         formParams.put("date", date);
         formParams.put("montant", "5" + "EUR");
-        formParams.put("reference", "19");
+        formParams.put("reference", "22");
         formParams.put("lgue", "FR");
         formParams.put("societe", moneticoProperties.society());
         formParams.put("url_retour_ok", URL_RETOUR_OK);
@@ -69,7 +69,7 @@ public class MoneticoController {
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "19"
+                        + "*" + "reference=" + "22"
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
@@ -103,7 +103,7 @@ public class MoneticoController {
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + temporaryMail
                         + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "19"
+                        + "*" + "reference=" + "22"
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre=ceciestuntestdepaiement"
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
@@ -114,13 +114,18 @@ public class MoneticoController {
         if (macRecu != null && macRecu.equals(macCalcul)) {
             if ("paiement".equals(params.get("code-retour")) || "payetest".equals(params.get("code-retour"))) {
                 // Paiement accepté
+                System.out.println("paiement accepté");
                 return "version=2\ncdr=0\n";
             } else {
                 // Paiement refusé
+                System.out.println("paiement refusé");
+
                 return "version=2\ncdr=1\n";
             }
         } else {
             // Signature invalide
+            System.out.println("paiement refusé car signature invalide");
+
             return "version=2\ncdr=1\n";
         }
     }
