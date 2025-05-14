@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +28,6 @@ public class MoneticoController {
     private final PaymentService paymentService;
     private final MoneticoProperties moneticoProperties;
 
-    @Value("${monetico.key}")
-    private String test;
 
     @Autowired
     MoneticoController(PaymentService paymentService, MoneticoProperties monetico){
@@ -37,12 +38,11 @@ public class MoneticoController {
     @PostMapping("/initier")
     public Map<String, String> generatePaymentForm(@RequestParam String id) {
 
-        System.out.println("ceci est la key : " + test);
-
         String temporaryMail = "khalfallah.razzak@gmail.com";
 
         Map<String, String> formParams = new HashMap<>();
-        String date = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss").format(new Date());
+        String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss"));
 
         String contexteBase64 = paymentService.contexteCommande();
 
@@ -91,7 +91,8 @@ public class MoneticoController {
         String temporaryMail = "khalfallah.razzak@gmail.com";
 
         Map<String, String> formParams = new HashMap<>();
-        String date = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss").format(new Date());
+        String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss"));
 
         String contexteBase64 = paymentService.contexteCommande();
         String dataToValidate =
