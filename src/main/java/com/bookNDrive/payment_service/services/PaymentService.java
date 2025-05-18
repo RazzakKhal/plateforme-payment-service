@@ -1,6 +1,7 @@
 package com.bookNDrive.payment_service.services;
 
 
+import com.bookNDrive.payment_service.feign.dtos.UserDto;
 import com.bookNDrive.payment_service.models.ContexteCommande;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -59,10 +60,10 @@ public class PaymentService {
         return sb.toString();
     }
 
-    public String contexteCommande(){
+    public String contexteCommande(UserDto user){
         Map<String, String> billing = Map.of(
-                "firstName", "Razzak",
-                "lastName", "Khalfallah",
+                "firstName", user.getFirstname(),
+                "lastName", user.getLastname(),
                 "addressLine1", "938 avenue des platanes",
                 "city", "Lattes",
                 "postalCode", "34970",

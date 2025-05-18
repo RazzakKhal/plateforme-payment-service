@@ -60,6 +60,11 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>0.11.5</version> <!-- Ou 0.12.0 selon la version souhaitée -->
@@ -117,6 +122,12 @@
 				<configuration>
 					<to>
 						<image>razzak2007/plateforme-autoecole-user-service</image>
+						<excludes>
+							<exclude>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+							</exclude>
+						</excludes>
 					</to>
 				</configuration>
 			</plugin>
