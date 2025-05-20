@@ -121,7 +121,7 @@
 				<version>3.4.2</version>
 				<configuration>
 					<to>
-						<image>razzak2007/plateforme-autoecole-user-service</image>
+						<image>razzak2007/plateforme-autoecole-payment-service</image>
 						<excludes>
 							<exclude>
 								<groupId>org.projectlombok</groupId>
