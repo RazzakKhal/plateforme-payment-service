@@ -1,7 +1,7 @@
 package com.bookNDrive.payment_service.services;
 
 
-import com.bookNDrive.payment_service.feign.dtos.UserDto;
+import com.bookNDrive.payment_service.feign.user_service.dtos.UserDto;
 import com.bookNDrive.payment_service.models.ContexteCommande;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,10 +63,10 @@ public class PaymentService {
         Map<String, String> billing = Map.of(
                 "firstName", user.getFirstname(),
                 "lastName", user.getLastname(),
-                "addressLine1", "938 avenue des platanes",
-                "city", "Lattes",
-                "postalCode", "34970",
-                "country", "FR"
+                "addressLine1", user.getAddress().getAdressLine1(),
+                "city", user.getAddress().getCity(),
+                "postalCode", user.getAddress().getPostalCode(),
+                "country", user.getAddress().getCountry()
         );
 
 

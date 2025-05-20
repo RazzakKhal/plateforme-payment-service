@@ -1,9 +1,8 @@
 package com.bookNDrive.payment_service.services;
 
-import com.bookNDrive.payment_service.feign.UserServiceFeignClient;
-import com.bookNDrive.payment_service.feign.dtos.UserDto;
+import com.bookNDrive.payment_service.feign.user_service.UserServiceFeignClient;
+import com.bookNDrive.payment_service.feign.user_service.dtos.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

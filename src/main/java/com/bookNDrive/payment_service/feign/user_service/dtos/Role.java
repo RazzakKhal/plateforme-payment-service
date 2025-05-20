@@ -1,4 +1,4 @@
-package com.bookNDrive.payment_service.feign.dtos;
+package com.bookNDrive.payment_service.feign.user_service.dtos;
 
 public enum Role {
     ROLE_USER,

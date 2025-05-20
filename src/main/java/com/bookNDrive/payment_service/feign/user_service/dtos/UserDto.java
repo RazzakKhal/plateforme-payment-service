@@ -1,4 +1,4 @@
-package com.bookNDrive.payment_service.feign.dtos;
+package com.bookNDrive.payment_service.feign.user_service.dtos;
 
 import lombok.Data;
 
@@ -12,11 +12,6 @@ public class UserDto {
     private String lastname;
     private String mail;
     private Long formulaId;
-
     private Set<Role> roles;
-
-    private String createdBy;
-    private String updatedBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private AdressDto address;
 }
