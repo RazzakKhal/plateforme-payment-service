@@ -122,12 +122,6 @@
 				<configuration>
 					<to>
 						<image>razzak2007/plateforme-autoecole-payment-service</image>
-						<excludes>
-							<exclude>
-								<groupId>org.projectlombok</groupId>
-								<artifactId>lombok</artifactId>
-							</exclude>
-						</excludes>
 					</to>
 				</configuration>
 			</plugin>
