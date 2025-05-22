@@ -21,4 +21,9 @@ public class UserService {
         System.out.println("le token : " + token);
         return userServiceFeignClient.getUser("Bearer " +token).getBody();
     }
+
+    public void saveUserFormula(Long formulaId){
+        var token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        userServiceFeignClient.updateUserFormula(formulaId);
+    }
 }

@@ -1,6 +1,7 @@
 package com.bookNDrive.payment_service.controllers;
 
 import com.bookNDrive.payment_service.configuration.MoneticoProperties;
+import com.bookNDrive.payment_service.services.FormulaService;
 import com.bookNDrive.payment_service.services.PaymentService;
 import com.bookNDrive.payment_service.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/payment")
@@ -30,22 +32,26 @@ public class MoneticoController {
     private final PaymentService paymentService;
     private final MoneticoProperties moneticoProperties;
     private final UserService userService;
+    private final FormulaService formulaService;
 
 
     @Autowired
-    MoneticoController(PaymentService paymentService, UserService userService, MoneticoProperties monetico){
+    MoneticoController(PaymentService paymentService, UserService userService, MoneticoProperties monetico, FormulaService formulaService){
         this.paymentService = paymentService;
         this.userService = userService;
         this.moneticoProperties = monetico;
+        this.formulaService = formulaService;
     }
 
     @PostMapping("/initier")
     public Map<String, String> generatePaymentForm(@RequestParam String formulaId) {
 
-        // récupération de la formule en BDD formula
+        String reference = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
 
-        // récupération de l"utilisateur connecté
+
         var user = userService.getCurrentUser();
+        var formula = formulaService.getFormulaById(Long.valueOf(formulaId));
+        var price = formulaService.getPrice(formula);
         System.out.println("récuperation reussie + " + user.getMail());
 
         // tout ca à mettre dans un service à part
@@ -55,20 +61,19 @@ public class MoneticoController {
         String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss"));
 
-        System.out.println("la date + : " + date);
         String contexteBase64 = paymentService.contexteCommande(user);
 
         // Création des paramètres du formulaire
         formParams.put("version", moneticoProperties.version());
         formParams.put("TPE", moneticoProperties.tpe());
         formParams.put("date", date);
-        formParams.put("montant", "5" + "EUR");
-        formParams.put("reference", "26");
+        formParams.put("montant", formulaService.getPrice(formula) + "EUR");
+        formParams.put("reference", reference);
         formParams.put("lgue", "FR");
         formParams.put("societe", moneticoProperties.society());
         formParams.put("url_retour_ok", URL_RETOUR_OK);
         formParams.put("url_retour_err", URL_RETOUR_KO);
-        formParams.put("texte-libre", "ceciestuntestdepaiement");
+        formParams.put("texte-libre", "");
         formParams.put("mail", user.getMail());
         formParams.put("contexte_commande", contexteBase64);
 
@@ -79,16 +84,18 @@ public class MoneticoController {
                         + "*" + "date=" + date
                         + "*" + "lgue=FR"
                         + "*" + "mail=" + user.getMail()
-                        + "*" + "montant=" + "5" + "EUR"
-                        + "*" + "reference=" + "26"
+                        + "*" + "montant=" + formulaService.getPrice(formula) + "EUR"
+                        + "*" + "reference=" + reference
                         + "*" + "societe=" + moneticoProperties.society()
-                        + "*" + "texte-libre=ceciestuntestdepaiement"
+                        + "*" + "texte-libre="
                         + "*" + "url_retour_err=" + URL_RETOUR_KO
                         + "*" + "url_retour_ok=" + URL_RETOUR_OK
                         + "*" + "version=" + moneticoProperties.version();
 
         String mac = paymentService.generateMac(dataToSign, moneticoProperties.key());
         formParams.put("MAC", mac);
+
+        paymentService.createPayment(reference,user.getId(),formula.getId(),price, contexteBase64,mac);
 
         return formParams;
     }
@@ -99,6 +106,8 @@ public class MoneticoController {
 
         System.out.println("les params : " + params);
         String macRecu = params.get("MAC");
+        var reference = params.get("reference");
+        // récupérer par referance le paiement pour modifier
 
         String dataToValidate = paymentService.dataConstructFromMoneticoReturn(params);
 
@@ -108,17 +117,20 @@ public class MoneticoController {
             if ("paiement".equals(params.get("code-retour")) || "payetest".equals(params.get("code-retour"))) {
                 // Paiement accepté
                 System.out.println("paiement accepté");
+                var payment = paymentService.markAsSuccess(reference,macRecu,params);
+                userService.saveUserFormula(payment.getFormulaId());
+                //sauvegarder le choix de la formule via le formula-service
                 return "version=2\ncdr=0\n";
             } else {
                 // Paiement refusé
                 System.out.println("paiement refusé");
-
+                paymentService.markAsFailed(reference,params);
                 return "version=2\ncdr=1\n";
             }
         } else {
             // Signature invalide
             System.out.println("paiement refusé car signature invalide");
-
+            paymentService.markAsInvalidSignature(reference,macRecu,params);
             return "version=2\ncdr=1\n";
         }
     }
