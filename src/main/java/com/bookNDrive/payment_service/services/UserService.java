@@ -24,6 +24,6 @@ public class UserService {
 
     public void saveUserFormula(Long formulaId){
         var token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-        userServiceFeignClient.updateUserFormula(formulaId);
+        userServiceFeignClient.updateUserFormula(formulaId, token);
     }
 }

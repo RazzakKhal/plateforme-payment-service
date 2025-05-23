@@ -16,5 +16,5 @@ public interface UserServiceFeignClient {
     public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String bearerToken);
 
     @PatchMapping("/users/formula")
-    void updateUserFormula(@RequestParam("formulaId") Long formulaId);
+    void updateUserFormula(@RequestParam("formulaId") Long formulaId, @RequestHeader("Authorization") String bearerToken);
 }
