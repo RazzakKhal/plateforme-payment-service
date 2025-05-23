@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,6 +124,7 @@ public class PaymentService {
                 .map(p -> {
                     p.setMacRecu(macRecu);
                     p.setRawReturnParams(retourParams.toString());
+                    p.setDateValidation(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Paris")));
                     p.setStatus(PaymentStatus.SUCCESS);
                     return paymentRepository.save(p);
                 })

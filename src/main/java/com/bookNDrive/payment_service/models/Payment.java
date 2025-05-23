@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 public class Payment {
 
     private final ZonedDateTime dateInitiation = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Paris"));
-    private final ZonedDateTime dateValidation = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Paris"));
+    private final String currency = "EUR";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +27,12 @@ public class Payment {
     private Long formulaId;
 
     private String montant;
-    private String currency;
 
     private String macEnvoye;
     private String macRecu;
     private String contexteCommande;
+    private ZonedDateTime dateValidation;
+
 
     @Lob
     private String rawReturnParams;
