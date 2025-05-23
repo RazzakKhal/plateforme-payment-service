@@ -18,11 +18,14 @@ public class UserService {
 
     public UserDto getCurrentUser(){
         var token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        System.out.println("token envoyé via getCurrentUser : "+token);
+
         return userServiceFeignClient.getUser("Bearer " +token).getBody();
     }
 
     public void saveUserFormula(Long formulaId){
         var token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        System.out.println("token envoyé via saveUserFormula : "+token);
         userServiceFeignClient.updateUserFormula(formulaId, "Bearer " +token);
     }
 }
