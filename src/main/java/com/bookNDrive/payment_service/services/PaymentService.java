@@ -1,21 +1,34 @@
 package com.bookNDrive.payment_service.services;
 
 
+import com.bookNDrive.payment_service.enums.PaymentStatus;
+import com.bookNDrive.payment_service.feign.user_service.dtos.UserDto;
 import com.bookNDrive.payment_service.models.ContexteCommande;
+import com.bookNDrive.payment_service.models.Payment;
+import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+
+    public PaymentService(PaymentRepository paymentRepository){
+        this.paymentRepository = paymentRepository;
+    }
 
     public String generateMac(String dataToSign, String hexKey) {
         try {
@@ -59,14 +72,14 @@ public class PaymentService {
         return sb.toString();
     }
 
-    public String contexteCommande(){
+    public String contexteCommande(UserDto user){
         Map<String, String> billing = Map.of(
-                "firstName", "Razzak",
-                "lastName", "Khalfallah",
-                "addressLine1", "938 avenue des platanes",
-                "city", "Lattes",
-                "postalCode", "34970",
-                "country", "FR"
+                "firstName", user.getFirstname(),
+                "lastName", user.getLastname(),
+                "addressLine1", user.getAddress().getAdressLine1(),
+                "city", user.getAddress().getCity(),
+                "postalCode", user.getAddress().getPostalCode(),
+                "country", user.getAddress().getCountry()
         );
 
 
@@ -91,5 +104,47 @@ public class PaymentService {
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining("*"));
+    }
+
+    public Payment createPayment(String reference, Long userId, Long formulaId, String montant, String contexte, String mac) {
+
+        Payment payment = new Payment();
+        payment.setReference(reference);
+        payment.setUserId(userId);
+        payment.setFormulaId(formulaId);
+        payment.setMontant(montant);
+        payment.setMacEnvoye(mac);
+        payment.setContexteCommande(contexte);
+
+        return paymentRepository.save(payment);
+    }
+
+    public Payment markAsSuccess(String reference, String macRecu, Map<String, String> retourParams) {
+        return paymentRepository.findByReference(reference)
+                .map(p -> {
+                    p.setMacRecu(macRecu);
+                    p.setRawReturnParams(retourParams.toString());
+                    p.setDateValidation(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Paris")));
+                    p.setStatus(PaymentStatus.SUCCESS);
+                    return paymentRepository.save(p);
+                })
+                .orElseThrow(() -> new RuntimeException("Paiement non trouvé avec la référence : " + reference));
+    }
+
+    public void markAsInvalidSignature(String reference, String macRecu, Map<String, String> retourParams) {
+        paymentRepository.findByReference(reference).ifPresent(p -> {
+            p.setMacRecu(macRecu);
+            p.setRawReturnParams(retourParams.toString());
+            p.setStatus(PaymentStatus.INVALID_SIGNATURE);
+            paymentRepository.save(p);
+        });
+    }
+
+    public void markAsFailed(String reference, Map<String, String> retourParams) {
+        paymentRepository.findByReference(reference).ifPresent(p -> {
+            p.setRawReturnParams(retourParams.toString());
+            p.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(p);
+        });
     }
 }

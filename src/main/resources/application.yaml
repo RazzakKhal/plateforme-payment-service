@@ -11,6 +11,20 @@ spring:
       - "prod"
   application:
     name: payment-service
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL_PAYMENT_SERVICE:jdbc:postgresql://localhost:5434/autoecole-payment}
+    username: ${SPRING_POSTGRES_USERNAME:postgres}
+    password: ${SPRING_POSTGRES_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+
 
 
 server:
