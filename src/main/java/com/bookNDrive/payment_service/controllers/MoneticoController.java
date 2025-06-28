@@ -118,8 +118,7 @@ public class MoneticoController {
                 // Paiement accepté
                 System.out.println("paiement accepté");
                 var payment = paymentService.markAsSuccess(reference,macRecu,params);
-          // ca devra etre un message kafka ecouté par le user-service      userService.saveUserFormula(payment.getFormulaId());
-                //sauvegarder le choix de la formule via le formula-service
+                paymentService.saveUserFormulaFromPayment(payment);
                 return "version=2\ncdr=0\n";
             } else {
                 // Paiement refusé

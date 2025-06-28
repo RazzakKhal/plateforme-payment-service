@@ -1,4 +1,13 @@
 spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers:
+            - localhost:29092
+      bindings:
+        sendCommunication-out-0:
+          destination: send-communication
   rabbitmq:
     host: "localhost"
     port: 5672

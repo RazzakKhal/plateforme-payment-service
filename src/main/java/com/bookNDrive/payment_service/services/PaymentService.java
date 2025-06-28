@@ -1,12 +1,15 @@
 package com.bookNDrive.payment_service.services;
 
 
+import com.bookNDrive.payment_service.dtos.sended.PaymentDto;
 import com.bookNDrive.payment_service.enums.PaymentStatus;
 import com.bookNDrive.payment_service.feign.user_service.dtos.UserDto;
+import com.bookNDrive.payment_service.mappers.PaymentMapper;
 import com.bookNDrive.payment_service.models.ContexteCommande;
 import com.bookNDrive.payment_service.models.Payment;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.integration.kafka.dsl.Kafka;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -25,9 +28,13 @@ import java.util.stream.Collectors;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final PaymentMapper paymentMapper;
+    private final KafkaService kafkaService;
 
-    public PaymentService(PaymentRepository paymentRepository){
+    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, KafkaService kafkaService){
         this.paymentRepository = paymentRepository;
+        this.paymentMapper = paymentMapper;
+        this.kafkaService = kafkaService;
     }
 
     public String generateMac(String dataToSign, String hexKey) {
@@ -146,5 +153,10 @@ public class PaymentService {
             p.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(p);
         });
+    }
+
+    public void saveUserFormulaFromPayment(Payment payment){
+        var paymentDto = paymentMapper.paymentToPaymentDto(payment);
+        kafkaService.sendMessage("sendCommunication-out-0", paymentDto);
     }
 }
