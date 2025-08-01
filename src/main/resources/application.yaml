@@ -1,10 +1,11 @@
 spring:
   cloud:
     stream:
+      defaultBinder: kafka
       kafka:
         binder:
           brokers:
-            - localhost:29092
+            - ${SPRING_KAFKA:localhost:29092}
       bindings:
         sendCommunication-out-0:
           destination: send-communication
