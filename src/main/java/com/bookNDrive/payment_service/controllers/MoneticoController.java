@@ -77,9 +77,14 @@ public class MoneticoController {
         formParams.put("mail", user.getMail());
         formParams.put("contexte_commande", contexteBase64);
 
+        formParams.put("3dsdebrayable", "0");
+        formParams.put("ThreeDSecureChallenge", "challenge_preferred");
+
         // Calcul du sceau // a enregistrer en bdd pour pouvoir le vérifier sur lappel retour
         String dataToSign =
-                "TPE=" + moneticoProperties.tpe()
+                "3dsdebrayable=0"
+                        + "*" + "TPE=" + moneticoProperties.tpe()
+                        + "*" + "ThreeDSecureChallenge=challenge_preferred"
                         + "*" + "contexte_commande=" + contexteBase64
                         + "*" + "date=" + date
                         + "*" + "lgue=FR"
@@ -108,7 +113,7 @@ public class MoneticoController {
         String macRecu = params.get("MAC");
         var reference = params.get("reference");
         // récupérer par referance le paiement pour modifier
-
+        System.out.println("authentification 3ds : " + params.get("authentification"));
         String dataToValidate = paymentService.dataConstructFromMoneticoReturn(params);
 
         String macCalcul = paymentService.generateMac(dataToValidate, moneticoProperties.key());
