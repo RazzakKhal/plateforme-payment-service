@@ -7,6 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -39,6 +40,10 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    public static String generateReference(){
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+    }
 
 
 }
