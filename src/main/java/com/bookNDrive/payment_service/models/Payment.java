@@ -34,7 +34,7 @@ public class Payment {
     private ZonedDateTime dateValidation;
 
 
-    @Lob
+    @Column(columnDefinition = "text")
     private String rawReturnParams;
 
     @Enumerated(EnumType.STRING)

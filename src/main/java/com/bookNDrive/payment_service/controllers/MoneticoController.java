@@ -5,19 +5,15 @@ import com.bookNDrive.payment_service.services.FormulaService;
 import com.bookNDrive.payment_service.services.PaymentService;
 import com.bookNDrive.payment_service.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,8 +23,8 @@ import java.util.UUID;
 public class MoneticoController {
 
 
-    private static final String URL_RETOUR_OK = "/";
-    private static final String URL_RETOUR_KO = "/";
+    private static final String URL_RETOUR_OK = "https://ask-plateforme.fr/payment/success";
+    private static final String URL_RETOUR_KO = "https://ask-plateforme.fr/payment/failed";
     private final PaymentService paymentService;
     private final MoneticoProperties moneticoProperties;
     private final UserService userService;
