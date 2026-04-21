@@ -7,7 +7,7 @@
         <groupId>com.bookNDrive</groupId>
         <artifactId>ask-bom</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../ask-bom/pom.xml</relativePath>
+        <relativePath/>
     </parent>
 
     <groupId>com.bookNDrive</groupId>
