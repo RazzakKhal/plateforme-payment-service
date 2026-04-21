@@ -11,6 +11,8 @@ jobs:
     permissions:
       contents: read
       packages: read
+    env:
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -71,11 +73,8 @@ jobs:
             </activeProfiles>
           </settings>
           EOF
-        env:
-          GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
-
       - name: build and test and generate coverage
-        run: ./mvnw clean install
+        run: mvn clean install
 
       - name: Upload Jacoco Report
         uses: actions/upload-artifact@v4
@@ -92,5 +91,5 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          ./mvnw compile jib:build \
+          mvn compile jib:build \
             -Djib.to.image=razzak2007/plateforme-autoecole-payment-service:latest \
