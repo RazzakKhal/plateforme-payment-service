@@ -26,14 +26,14 @@ public class MoneticoStatusHandler {
             PaymentRepository paymentRepository,
             MoneticoFormBuilder moneticoBuilder,
             PaymentPublisher paymentPublisher,
-            MoneticoProperties moneticoProperties){
+            MoneticoProperties moneticoProperties) {
         this.paymentRepository = paymentRepository;
         this.moneticoBuilder = moneticoBuilder;
         this.paymentPublisher = paymentPublisher;
         this.moneticoProperties = moneticoProperties;
     }
 
-    public String paymentStatus(Map<String, String> returnParameters){
+    public String paymentStatus(Map<String, String> returnParameters) {
         var macRecu = returnParameters.get("MAC");
         var reference = returnParameters.get("reference");
 
@@ -45,17 +45,17 @@ public class MoneticoStatusHandler {
         if (macCalcul.equalsIgnoreCase(macRecu)) {
             if ("paiement".equals(returnParameters.get("code-retour")) || "payetest".equals(returnParameters.get("code-retour"))) {
 
-                var payment = markAsSuccess(reference,macRecu,returnParameters);
+                var payment = markAsSuccess(reference, macRecu, returnParameters);
                 paymentPublisher.publishPayment(payment);
-                return "version=2\ncdr=0\n";
             } else {
 
-                markAsFailed(reference,returnParameters);
-                return "version=2\ncdr=1\n";
+                markAsFailed(reference, returnParameters);
             }
+            return "version=2\ncdr=0\n";
+
         } else {
 
-            markAsInvalidSignature(reference,macRecu,returnParameters);
+            markAsInvalidSignature(reference, macRecu, returnParameters);
             return "version=2\ncdr=1\n";
         }
     }
