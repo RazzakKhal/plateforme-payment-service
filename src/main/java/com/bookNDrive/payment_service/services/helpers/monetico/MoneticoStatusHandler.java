@@ -1,8 +1,8 @@
 package com.bookNDrive.payment_service.services.helpers.monetico;
 
 import com.bookNDrive.payment_service.configuration.MoneticoProperties;
+import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.enums.PaymentStatus;
-import com.bookNDrive.payment_service.models.Payment;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.bookNDrive.payment_service.services.publishers.PaymentPublisher;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.bookNDrive.payment_service.repositories;
 
-import com.bookNDrive.payment_service.models.Payment;
+import com.bookNDrive.payment_service.entities.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

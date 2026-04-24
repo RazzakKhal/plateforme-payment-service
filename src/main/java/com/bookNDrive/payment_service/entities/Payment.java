@@ -1,4 +1,4 @@
-package com.bookNDrive.payment_service.models;
+package com.bookNDrive.payment_service.entities;
 
 import com.bookNDrive.payment_service.enums.PaymentStatus;
 import jakarta.persistence.*;
@@ -41,7 +41,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    public static String generateReference(){
+    public static String generateReference() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 

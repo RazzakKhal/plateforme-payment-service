@@ -1,7 +1,7 @@
 package com.bookNDrive.payment_service.services.publishers.monetico;
 
+import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.mappers.PaymentMapper;
-import com.bookNDrive.payment_service.models.Payment;
 import com.bookNDrive.payment_service.services.KafkaService;
 import com.bookNDrive.payment_service.services.publishers.PaymentPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class PaymentMoneticoPublisher implements PaymentPublisher {
     PaymentMoneticoPublisher(
             PaymentMapper paymentMapper,
             KafkaService kafkaService
-    ){
+    ) {
         this.kafkaService = kafkaService;
         this.paymentMapper = paymentMapper;
     }

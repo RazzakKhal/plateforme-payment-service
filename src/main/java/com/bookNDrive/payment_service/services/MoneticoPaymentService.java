@@ -2,7 +2,7 @@ package com.bookNDrive.payment_service.services;
 
 
 import com.bookNDrive.payment_service.dtos.sended.PaymentFormDto;
-import com.bookNDrive.payment_service.models.Payment;
+import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoFormBuilder;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoStatusHandler;
@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public class MoneticoPaymentService implements PaymentService{
-
+public class MoneticoPaymentService implements PaymentService {
 
 
     private final UserService userService;
@@ -32,8 +31,8 @@ public class MoneticoPaymentService implements PaymentService{
             MoneticoFormBuilder moneticoBuilder,
             PaymentRepository paymentRepository
 
-            ){
-        this.userService =userService;
+    ) {
+        this.userService = userService;
         this.formulaService = formulaService;
         this.moneticoStatusHandler = moneticoStatusHandler;
         this.moneticoBuilder = moneticoBuilder;
@@ -47,7 +46,7 @@ public class MoneticoPaymentService implements PaymentService{
         var formula = formulaService.getFormulaById(Long.valueOf(formulaId));
         var price = formulaService.getPrice(formula);
 
-        PaymentFormDto paymentFormDto = moneticoBuilder.build(user,price);
+        PaymentFormDto paymentFormDto = moneticoBuilder.build(user, price);
 
         Payment payment = new Payment();
         payment.setReference(paymentFormDto.reference());
@@ -63,8 +62,7 @@ public class MoneticoPaymentService implements PaymentService{
     }
 
 
-
-    public String paymentStatus(Map<String, String> returnParameters){
+    public String paymentStatus(Map<String, String> returnParameters) {
         return moneticoStatusHandler.paymentStatus(returnParameters);
     }
 

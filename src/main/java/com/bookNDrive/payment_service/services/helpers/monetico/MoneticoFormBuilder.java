@@ -2,12 +2,10 @@ package com.bookNDrive.payment_service.services.helpers.monetico;
 
 import com.bookNDrive.payment_service.configuration.MoneticoProperties;
 import com.bookNDrive.payment_service.dtos.sended.PaymentFormDto;
+import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.feign.user_service.dtos.UserDto;
 import com.bookNDrive.payment_service.infrastructure.encoder.Encoder;
-import com.bookNDrive.payment_service.mappers.PaymentMapper;
 import com.bookNDrive.payment_service.models.ContexteCommande;
-import com.bookNDrive.payment_service.models.Payment;
-import com.bookNDrive.payment_service.services.KafkaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,22 +25,22 @@ import java.util.stream.Collectors;
 public class MoneticoFormBuilder {
 
 
-    private final Encoder encoder;
-    private final MoneticoProperties moneticoProperties;
     private static final String URL_RETOUR_OK = "https://ask-plateforme.fr/payment/success";
     private static final String URL_RETOUR_KO = "https://ask-plateforme.fr/payment/failed";
+    private final Encoder encoder;
+    private final MoneticoProperties moneticoProperties;
 
     @Autowired
     public MoneticoFormBuilder(
             Encoder encoder,
             MoneticoProperties moneticoProperties
-    ){
-        this.encoder =encoder;
+    ) {
+        this.encoder = encoder;
         this.moneticoProperties = moneticoProperties;
     }
 
 
-    public PaymentFormDto build(UserDto user, String price){
+    public PaymentFormDto build(UserDto user, String price) {
         String reference = Payment.generateReference();
 
         String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
@@ -100,7 +98,7 @@ public class MoneticoFormBuilder {
                 .collect(Collectors.joining("*"));
     }
 
-    private String contexteCommande(UserDto user){
+    private String contexteCommande(UserDto user) {
         Map<String, String> billing = Map.of(
                 "firstName", user.getFirstname(),
                 "lastName", user.getLastname(),

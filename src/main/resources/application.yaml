@@ -1,4 +1,9 @@
 spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    locations: classpath:db/migration
   cloud:
     stream:
       defaultBinder: kafka
@@ -24,10 +29,16 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
+      jakarta:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: target/schema.sql
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
   datasource:
     url: ${SPRING_DATASOURCE_URL_PAYMENT_SERVICE:jdbc:postgresql://localhost:5434/autoecole-payment}

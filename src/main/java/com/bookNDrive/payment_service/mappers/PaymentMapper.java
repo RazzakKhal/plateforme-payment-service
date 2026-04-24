@@ -1,14 +1,14 @@
 package com.bookNDrive.payment_service.mappers;
 
 import com.bookNDrive.payment_service.dtos.sended.PaymentDto;
-import com.bookNDrive.payment_service.models.Payment;
+import com.bookNDrive.payment_service.entities.Payment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
-    PaymentMapper INSTANCE = Mappers.getMapper( PaymentMapper.class );
+    PaymentMapper INSTANCE = Mappers.getMapper(PaymentMapper.class);
 
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "formulaId", target = "formulaId")
