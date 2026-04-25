@@ -3,9 +3,13 @@ package com.bookNDrive.payment_service.services.helpers.monetico;
 import com.bookNDrive.payment_service.configuration.MoneticoProperties;
 import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.enums.PaymentStatus;
+import com.bookNDrive.payment_service.events.PaymentCreated;
+import com.bookNDrive.payment_service.mappers.PaymentMapper;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
-import com.bookNDrive.payment_service.services.publishers.PaymentPublisher;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.bookNDrive.payment_service.services.OutboxService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -14,26 +18,18 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class MoneticoStatusHandler {
 
     private final PaymentRepository paymentRepository;
     private final MoneticoFormBuilder moneticoBuilder;
     private final MoneticoProperties moneticoProperties;
-    private final PaymentPublisher paymentPublisher;
+    private final OutboxService outboxService;
+    private final PaymentMapper paymentMapper;
 
-    @Autowired
-    MoneticoStatusHandler(
-            PaymentRepository paymentRepository,
-            MoneticoFormBuilder moneticoBuilder,
-            PaymentPublisher paymentPublisher,
-            MoneticoProperties moneticoProperties) {
-        this.paymentRepository = paymentRepository;
-        this.moneticoBuilder = moneticoBuilder;
-        this.paymentPublisher = paymentPublisher;
-        this.moneticoProperties = moneticoProperties;
-    }
 
-    public String paymentStatus(Map<String, String> returnParameters) {
+    @Transactional
+    public String paymentStatus(Map<String, String> returnParameters) throws JsonProcessingException {
         var macRecu = returnParameters.get("MAC");
         var reference = returnParameters.get("reference");
 
@@ -46,7 +42,9 @@ public class MoneticoStatusHandler {
             if ("paiement".equals(returnParameters.get("code-retour")) || "payetest".equals(returnParameters.get("code-retour"))) {
 
                 var payment = markAsSuccess(reference, macRecu, returnParameters);
-                paymentPublisher.publishPayment(payment);
+                outboxService.saveEventBeforePublishing(
+                        new PaymentCreated(paymentMapper.paymentToPaymentDto(payment))
+                );
             } else {
 
                 markAsFailed(reference, returnParameters);

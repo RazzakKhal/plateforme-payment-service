@@ -2,6 +2,7 @@ package com.bookNDrive.payment_service.controllers;
 
 import com.bookNDrive.payment_service.dtos.sended.PaymentFormDto;
 import com.bookNDrive.payment_service.services.MoneticoPaymentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,13 +16,11 @@ import java.util.Map;
 public class MoneticoController {
 
 
-
     private final MoneticoPaymentService paymentService;
 
 
-
     @Autowired
-    MoneticoController(MoneticoPaymentService paymentService){
+    MoneticoController(MoneticoPaymentService paymentService) {
         this.paymentService = paymentService;
 
     }
@@ -34,7 +33,7 @@ public class MoneticoController {
 
 
     @PostMapping("/retour")
-    public String handlePaymentReturn(@RequestParam Map<String, String> params) {
+    public String handlePaymentReturn(@RequestParam Map<String, String> params) throws JsonProcessingException {
 
         return paymentService.paymentStatus(params);
     }

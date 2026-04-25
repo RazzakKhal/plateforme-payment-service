@@ -6,6 +6,8 @@ import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoFormBuilder;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoStatusHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,7 @@ public class MoneticoPaymentService implements PaymentService {
     }
 
     @Override
+    @Transactional
     public PaymentFormDto createPayment(String formulaId) {
 
         var user = userService.getCurrentUser();
@@ -61,8 +64,7 @@ public class MoneticoPaymentService implements PaymentService {
         return paymentFormDto;
     }
 
-
-    public String paymentStatus(Map<String, String> returnParameters) {
+    public String paymentStatus(Map<String, String> returnParameters) throws JsonProcessingException {
         return moneticoStatusHandler.paymentStatus(returnParameters);
     }
 
