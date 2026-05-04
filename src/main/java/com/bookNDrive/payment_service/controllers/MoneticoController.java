@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/payments")
 public class MoneticoController {
 
 
@@ -25,14 +25,14 @@ public class MoneticoController {
 
     }
 
-    @PostMapping("/initier")
+    @PostMapping("")
     public PaymentFormDto generatePaymentForm(@RequestParam String formulaId) {
 
         return paymentService.createPayment(formulaId);
     }
 
 
-    @PostMapping("/retour")
+    @PostMapping("/monetico/callback")
     public String handlePaymentReturn(@RequestParam Map<String, String> params) throws JsonProcessingException {
 
         return paymentService.paymentStatus(params);
