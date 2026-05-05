@@ -39,7 +39,7 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
   datasource:
     url: ${SPRING_DATASOURCE_URL_PAYMENT_SERVICE:jdbc:postgresql://localhost:5434/autoecole-payment}
     username: ${SPRING_POSTGRES_USERNAME:postgres}
@@ -91,3 +91,16 @@ info:
     name: "payment-service"
     description: "payment service microservice"
 
+logging:
+  file:
+    name: ${LOG_FILE_NAME:logs/payment-service.log}
+  structured:
+    format:
+      console: ecs
+      file: ecs
+    ecs:
+      service:
+        name: ${spring.application.name}
+        environment: ${SPRING_PROFILES_ACTIVE:local}
+  level:
+    root: INFO
