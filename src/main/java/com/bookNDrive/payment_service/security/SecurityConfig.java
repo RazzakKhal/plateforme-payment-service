@@ -24,7 +24,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/payment/retour", "/actuator/**").permitAll()
+                        .requestMatchers("/payment/retour").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/actuator/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
 
                 )
