@@ -5,11 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Map;
 
-
 public interface PaymentService {
 
-    PaymentFormDto createPayment(String formulaId);
+    PaymentFormDto createPayment(Long formulaId);
 
     String paymentStatus(Map<String, String> returnParameters) throws JsonProcessingException;
-
 }

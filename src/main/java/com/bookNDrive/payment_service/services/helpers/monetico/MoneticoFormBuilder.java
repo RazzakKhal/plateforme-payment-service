@@ -3,6 +3,7 @@ package com.bookNDrive.payment_service.services.helpers.monetico;
 import com.bookNDrive.payment_service.configuration.MoneticoProperties;
 import com.bookNDrive.payment_service.dtos.sended.PaymentFormDto;
 import com.bookNDrive.payment_service.entities.Payment;
+import com.bookNDrive.payment_service.exceptions.PaymentInitializationException;
 import com.bookNDrive.payment_service.feign.user_service.dtos.UserDto;
 import com.bookNDrive.payment_service.infrastructure.encoder.Encoder;
 import com.bookNDrive.payment_service.models.ContexteCommande;
@@ -24,28 +25,22 @@ import java.util.stream.Collectors;
 @Component
 public class MoneticoFormBuilder {
 
-
     private static final String URL_RETOUR_OK = "https://ask-plateforme.fr/payment/success";
     private static final String URL_RETOUR_KO = "https://ask-plateforme.fr/payment/failed";
+
     private final Encoder encoder;
     private final MoneticoProperties moneticoProperties;
 
     @Autowired
-    public MoneticoFormBuilder(
-            Encoder encoder,
-            MoneticoProperties moneticoProperties
-    ) {
+    public MoneticoFormBuilder(Encoder encoder, MoneticoProperties moneticoProperties) {
         this.encoder = encoder;
         this.moneticoProperties = moneticoProperties;
     }
 
-
     public PaymentFormDto build(UserDto user, String price) {
         String reference = Payment.generateReference();
-
         String date = ZonedDateTime.now(ZoneId.of("Europe/Paris"))
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss"));
-
         String contexteBase64 = contexteCommande(user);
 
         String dataToSign =
@@ -64,34 +59,31 @@ public class MoneticoFormBuilder {
                         + "*" + "url_retour_ok=" + URL_RETOUR_OK
                         + "*" + "version=" + moneticoProperties.version();
 
-        var mac = generateMac(dataToSign, moneticoProperties.key());
+        String mac = generateMac(dataToSign, moneticoProperties.key());
 
         return new PaymentFormDto(
                 date,
                 user.getMail(),
-                "0",  // 3dsdebrayable
+                "0",
                 mac,
                 moneticoProperties.tpe(),
-                "challenge_preferred",  // ThreeDSecureChallenge
+                "challenge_preferred",
                 contexteBase64,
-                "FR",  // lgue
+                "FR",
                 price + "EUR",
                 reference,
                 moneticoProperties.society(),
-                "",   // texte-libre
+                "",
                 URL_RETOUR_KO,
                 URL_RETOUR_OK,
                 moneticoProperties.version()
         );
     }
 
-
     public String dataConstructFromMoneticoReturn(Map<String, String> params) {
-        // On enlève le champ MAC
         Map<String, String> filtered = new HashMap<>(params);
         filtered.remove("MAC");
 
-        // Trie alphabétique strict sur les clés
         return filtered.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
@@ -108,14 +100,13 @@ public class MoneticoFormBuilder {
                 "country", user.getAddress().getCountry()
         );
 
-
         ContexteCommande cc = new ContexteCommande(billing, null, null);
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(cc);
             return Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'encodage du contexte_commande", e);
+            throw new PaymentInitializationException("Erreur lors de l'encodage du contexte_commande");
         }
     }
 
@@ -130,8 +121,7 @@ public class MoneticoFormBuilder {
             return encoder.toHex(macBytes);
 
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du calcul du HMAC", e);
+            throw new PaymentInitializationException("Erreur lors du calcul du HMAC");
         }
     }
-
 }

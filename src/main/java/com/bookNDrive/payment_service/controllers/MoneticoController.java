@@ -10,7 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/payments")
 @Tag(name = "Monetico Controller", description = "Expose les operations de creation et de confirmation des paiements Monetico.")
+@Validated
 public class MoneticoController {
 
     private final MoneticoPaymentService paymentService;
@@ -58,7 +62,7 @@ public class MoneticoController {
                     example = "1",
                     required = true
             )
-            @RequestParam String formulaId
+            @RequestParam @NotNull(message = "must not be null") @Positive(message = "must be greater than 0") Long formulaId
     ) {
         return paymentService.createPayment(formulaId);
     }
