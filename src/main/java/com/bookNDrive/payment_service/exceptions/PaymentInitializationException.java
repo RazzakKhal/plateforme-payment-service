@@ -6,6 +6,6 @@ import org.springframework.http.HttpStatus;
 public class PaymentInitializationException extends ApiException {
 
     public PaymentInitializationException(String message) {
-        super(message, "PAYMENT_INITIALIZATION_ERROR", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        super(message, PaymentErrorCodes.PAYMENT_INITIALIZATION_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 }

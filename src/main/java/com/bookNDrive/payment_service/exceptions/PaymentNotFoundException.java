@@ -8,7 +8,7 @@ public class PaymentNotFoundException extends ApiException {
     public PaymentNotFoundException(String reference) {
         super(
                 "Aucun paiement ne correspond a la reference " + reference,
-                "PAYMENT_NOT_FOUND",
+                PaymentErrorCodes.PAYMENT_NOT_FOUND,
                 HttpStatus.NOT_FOUND.value()
         );
     }

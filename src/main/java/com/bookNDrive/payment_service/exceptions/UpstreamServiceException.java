@@ -6,6 +6,6 @@ import org.springframework.http.HttpStatus;
 public class UpstreamServiceException extends ApiException {
 
     public UpstreamServiceException(String message) {
-        super(message, "UPSTREAM_SERVICE_ERROR", HttpStatus.BAD_GATEWAY.value());
+        super(message, PaymentErrorCodes.UPSTREAM_SERVICE_ERROR, HttpStatus.BAD_GATEWAY.value());
     }
 }
