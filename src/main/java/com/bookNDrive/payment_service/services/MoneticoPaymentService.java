@@ -8,12 +8,14 @@ import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoFormBuil
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoStatusHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
+@Slf4j
 public class MoneticoPaymentService implements PaymentService {
 
     private final UserService userService;
@@ -40,9 +42,11 @@ public class MoneticoPaymentService implements PaymentService {
     @Override
     @Transactional
     public PaymentFormDto createPayment(Long formulaId) {
+        log.info("Creation de paiement initiee formulaId={}", formulaId);
         var user = userService.getCurrentUser();
         var formula = formulaService.getFormulaById(formulaId);
         var price = formulaService.getPrice(formula);
+        log.info("Donnees de paiement resolues formulaId={} userId={} amount={}", formulaId, user.getId(), price);
 
         PaymentFormDto paymentFormDto = moneticoBuilder.build(user, price);
 
@@ -56,6 +60,13 @@ public class MoneticoPaymentService implements PaymentService {
         payment.setStatus(PaymentStatus.PENDING);
 
         paymentRepository.save(payment);
+        log.info(
+                "Paiement initialise paymentReference={} userId={} formulaId={} status={}",
+                payment.getReference(),
+                payment.getUserId(),
+                payment.getFormulaId(),
+                payment.getStatus()
+        );
 
         return paymentFormDto;
     }
