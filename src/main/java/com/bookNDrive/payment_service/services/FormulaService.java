@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @Slf4j
 public class FormulaService {
@@ -18,7 +20,7 @@ public class FormulaService {
         this.formulaServiceFeignClient = formulaServiceFeignClient;
     }
 
-    public FormulaDto getFormulaById(Long id) {
+    public FormulaDto getFormulaById(UUID id) {
         log.info("Appel au formula-service initie formulaId={}", id);
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getCredentials() == null) {

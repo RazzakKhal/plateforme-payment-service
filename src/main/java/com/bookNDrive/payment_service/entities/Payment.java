@@ -3,29 +3,28 @@ package com.bookNDrive.payment_service.entities;
 import com.bookNDrive.payment_service.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-public class Payment {
+@Table(name = "payments")
+public class Payment extends BaseEntity {
 
     private final ZonedDateTime dateInitiation = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Paris"));
     private final String currency = "EUR";
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
 
     private String reference;
 
-    private Long userId;
+    private UUID userId;
 
-    private Long formulaId;
+    private UUID formulaId;
 
     private String montant;
 

@@ -2,17 +2,17 @@ package com.bookNDrive.payment_service.feign.user_service.dtos;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 public class UserDto {
-    private Long id;
+    private UUID id;
     private String firstname;
     private String lastname;
     private String mail;
     private String phone;
-    private Long formulaId;
+    private UUID formulaId;
     private Set<Role> roles;
-    private AdressDto address;
+    private AddressDto address;
 }

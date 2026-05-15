@@ -94,7 +94,7 @@ public class MoneticoFormBuilder {
         Map<String, String> billing = Map.of(
                 "firstName", user.getFirstname(),
                 "lastName", user.getLastname(),
-                "addressLine1", user.getAddress().getAdressLine1(),
+                "addressLine1", user.getAddress().getAddressLine1(),
                 "city", user.getAddress().getCity(),
                 "postalCode", user.getAddress().getPostalCode(),
                 "country", user.getAddress().getCountry()

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -41,7 +42,7 @@ public class MoneticoPaymentService implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentFormDto createPayment(Long formulaId) {
+    public PaymentFormDto createPayment(UUID formulaId) {
         log.info("Creation de paiement initiee formulaId={}", formulaId);
         var user = userService.getCurrentUser();
         var formula = formulaService.getFormulaById(formulaId);

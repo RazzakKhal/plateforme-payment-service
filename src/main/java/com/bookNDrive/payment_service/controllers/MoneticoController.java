@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/payments")
@@ -59,10 +59,10 @@ public class MoneticoController {
     public PaymentFormDto generatePaymentForm(
             @Parameter(
                     description = "Identifiant de la formule a payer",
-                    example = "1",
+                    example = "4c3495fd-46d1-4409-bd22-976d9205f6b8",
                     required = true
             )
-            @RequestParam @NotNull(message = "must not be null") @Positive(message = "must be greater than 0") Long formulaId
+            @RequestParam @NotNull(message = "must not be null") UUID formulaId
     ) {
         return paymentService.createPayment(formulaId);
     }

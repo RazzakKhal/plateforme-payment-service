@@ -2,12 +2,14 @@ package com.bookNDrive.payment_service.dtos.sended;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class PaymentDto {
 
     private String status;
 
-    private Long userId;
+    private UUID userId;
 
-    private Long formulaId;
+    private UUID formulaId;
 }
