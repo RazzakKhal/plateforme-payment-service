@@ -13,6 +13,7 @@ jobs:
       packages: read
     env:
       GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
+      SPRING_KAFKA: localhost:29092
 
     steps:
       - name: Checkout code
@@ -85,8 +86,67 @@ jobs:
       - name: Install ask-bom and common locally
         run: mvn -B -ntp -f ask-bom/pom.xml clean install -DskipTests
 
+      - name: Start Kafka for tests
+        run: |
+          docker network create ci-kafka
+
+          docker run -d --name ci-zookeeper \
+            --network ci-kafka \
+            --network-alias zookeeper \
+            -e ZOOKEEPER_CLIENT_PORT=2181 \
+            -e ZOOKEEPER_TICK_TIME=2000 \
+            confluentinc/cp-zookeeper:7.4.4
+
+          docker run -d --name ci-kafka \
+            --network ci-kafka \
+            --network-alias kafka \
+            -p 29092:29092 \
+            -e KAFKA_BROKER_ID=1 \
+            -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+            -e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:29092 \
+            -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:29092 \
+            -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT \
+            -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+            -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false \
+            confluentinc/cp-kafka:7.4.4
+
+      - name: Wait for Kafka
+        run: |
+          for i in {1..30}; do
+            if docker exec ci-kafka kafka-topics --bootstrap-server localhost:29092 --list >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 5
+          done
+
+          docker logs ci-zookeeper
+          docker logs ci-kafka
+          exit 1
+
+      - name: Create Kafka topic
+        run: |
+          docker exec ci-kafka kafka-topics \
+            --bootstrap-server localhost:29092 \
+            --create \
+            --if-not-exists \
+            --topic send-communication \
+            --partitions 1 \
+            --replication-factor 1
+
       - name: build and test and generate coverage
         run: mvn clean install
+
+      - name: Print Kafka logs on failure
+        if: failure()
+        run: |
+          docker logs ci-zookeeper
+          docker logs ci-kafka
+
+      - name: Stop Kafka
+        if: always()
+        run: |
+          docker rm -f ci-kafka ci-zookeeper || true
+          docker network rm ci-kafka || true
 
       - name: Upload Jacoco Report
         uses: actions/upload-artifact@v4
