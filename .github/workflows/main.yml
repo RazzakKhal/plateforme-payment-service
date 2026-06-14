@@ -3,10 +3,18 @@ name: CI/CD - Build and Push Docker Image
 on:
   push:
     branches:
-      - '**'
+      - main
+  workflow_dispatch:
+    inputs:
+      prod:
+        description: 'Build prod image'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build-and-push:
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -14,6 +22,8 @@ jobs:
     env:
       GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
       SPRING_KAFKA: localhost:29092
+      IMAGE_NAME: razzak2007/plateforme-autoecole-payment-service
+      PROD: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prod || 'false' }}
 
     steps:
       - name: Checkout code
@@ -136,6 +146,21 @@ jobs:
       - name: build and test and generate coverage
         run: mvn clean install
 
+      - name: Compute image tag
+        shell: bash
+        run: |
+          if [[ "${PROD}" == "true" ]]; then
+            TAG=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+            if [[ "$TAG" == *-SNAPSHOT ]]; then
+              echo "Refus de publier en prod une version SNAPSHOT: $TAG"
+              exit 1
+            fi
+          else
+            TAG=latest
+          fi
+
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+
       - name: Print Kafka logs on failure
         if: failure()
         run: |
@@ -164,4 +189,4 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           mvn compile jib:build \
-            -Djib.to.image=razzak2007/plateforme-autoecole-payment-service:latest \
+            -Djib.to.image=${IMAGE_NAME}:${IMAGE_TAG}
