@@ -13,6 +13,7 @@ public interface PaymentMapper {
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "formulaId", target = "formulaId")
     @Mapping(source = "status", target = "status")
+    @Mapping(source = "reference", target = "reference")
     PaymentDto paymentToPaymentDto(Payment payment);
 
 

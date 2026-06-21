@@ -10,7 +10,6 @@ import com.bookNDrive.payment_service.mappers.PaymentMapper;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.bookNDrive.payment_service.services.OutboxService;
 import com.bookndrive.common.util.SensitiveDataMasker;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,42 +25,57 @@ import java.util.Map;
 @Slf4j
 public class MoneticoStatusHandler {
 
+    private static final String SUCCESS_RETURN = "version=2\ncdr=0\n";
+    private static final String FAILED_RETURN = "version=2\ncdr=1\n";
+
+
     private final PaymentRepository paymentRepository;
     private final MoneticoFormBuilder moneticoBuilder;
     private final MoneticoProperties moneticoProperties;
     private final OutboxService outboxService;
     private final PaymentMapper paymentMapper;
 
+
     @Transactional
-    public String paymentStatus(Map<String, String> returnParameters) throws JsonProcessingException {
-        String macRecu = requireParam(returnParameters, "MAC");
-        String reference = requireParam(returnParameters, "reference");
-        String codeRetour = returnParameters.get("code-retour");
-        log.info("Callback Monetico recu reference={} codeRetour={}", reference, codeRetour);
+    public String paymentStatus(Map<String, String> returnParameters) {
 
-        String dataToValidate = moneticoBuilder.dataConstructFromMoneticoReturn(returnParameters);
-        String macCalcul = moneticoBuilder.generateMac(dataToValidate, moneticoProperties.key());
+        try {
+            String macRecu = requireParam(returnParameters, "MAC");
+            String reference = requireParam(returnParameters, "reference");
+            String codeRetour = returnParameters.get("code-retour");
+            log.info("Callback Monetico recu reference={} codeRetour={}", reference, codeRetour);
 
-        if (macCalcul.equalsIgnoreCase(macRecu)) {
-            if ("paiement".equals(codeRetour) || "payetest".equals(codeRetour)) {
-                var payment = markAsSuccess(reference, macRecu, returnParameters);
-                outboxService.saveEventBeforePublishing(
-                        new PaymentCreated(paymentMapper.paymentToPaymentDto(payment))
-                );
-                log.info("Callback Monetico traite avec succes reference={} codeRetour={}", reference, codeRetour);
-            } else {
-                markAsFailed(reference, returnParameters);
+            String dataToValidate = moneticoBuilder.dataConstructFromMoneticoReturn(returnParameters);
+            String macCalcul = moneticoBuilder.generateMac(dataToValidate, moneticoProperties.key());
+
+            if (macCalcul.equalsIgnoreCase(macRecu)) {
+                if ("paiement".equals(codeRetour) || "payetest".equals(codeRetour)) {
+                    var payment = markAsSuccess(reference, macRecu, returnParameters);
+                    outboxService.saveEventBeforePublishing(
+                            new PaymentCreated(paymentMapper.paymentToPaymentDto(payment))
+                    );
+                    log.info("Callback Monetico traite avec succes reference={} codeRetour={}", reference, codeRetour);
+                } else {
+                    markAsFailed(reference, returnParameters);
+                }
+                return SUCCESS_RETURN;
             }
-            return "version=2\ncdr=0\n";
+
+            log.warn(
+                    "Signature invalide pour le callback Monetico reference={} macRecu={}",
+                    reference,
+                    SensitiveDataMasker.maskKeepingPrefix(macRecu, 6)
+            );
+            markAsInvalidSignature(reference, macRecu, returnParameters);
+            return FAILED_RETURN;
+        } catch (
+                Exception e
+        ) {
+            log.error("Erreur inattendue lors du traitement de la callback: {}", e.toString());
+            return FAILED_RETURN;
+
         }
 
-        log.warn(
-                "Signature invalide pour le callback Monetico reference={} macRecu={}",
-                reference,
-                SensitiveDataMasker.maskKeepingPrefix(macRecu, 6)
-        );
-        markAsInvalidSignature(reference, macRecu, returnParameters);
-        return "version=2\ncdr=1\n";
     }
 
     private Payment markAsSuccess(String reference, String macRecu, Map<String, String> retourParams) {

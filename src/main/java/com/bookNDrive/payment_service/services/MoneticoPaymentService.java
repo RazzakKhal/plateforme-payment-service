@@ -6,7 +6,6 @@ import com.bookNDrive.payment_service.enums.PaymentStatus;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoFormBuilder;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoStatusHandler;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,7 @@ public class MoneticoPaymentService implements PaymentService {
     }
 
     @Override
-    public String paymentStatus(Map<String, String> returnParameters) throws JsonProcessingException {
+    public String paymentStatus(Map<String, String> returnParameters) {
         return moneticoStatusHandler.paymentStatus(returnParameters);
     }
 }

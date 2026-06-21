@@ -12,4 +12,6 @@ public class PaymentDto {
     private UUID userId;
 
     private UUID formulaId;
+
+    private String reference;
 }
