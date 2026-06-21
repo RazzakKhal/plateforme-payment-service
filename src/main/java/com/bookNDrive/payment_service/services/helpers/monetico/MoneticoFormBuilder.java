@@ -18,8 +18,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Component
@@ -53,8 +53,8 @@ public class MoneticoFormBuilder {
                         + "*" + "reference=" + reference
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre="
-                        + "*" + "url_retour_err=" + moneticoProperties.urlRetourOk()
-                        + "*" + "url_retour_ok=" + moneticoProperties.urlRetourKo()
+                        + "*" + "url_retour_err=" + moneticoProperties.urlRetourKo()
+                        + "*" + "url_retour_ok=" + moneticoProperties.urlRetourOk()
                         + "*" + "version=" + moneticoProperties.version();
 
         String mac = generateMac(dataToSign, moneticoProperties.key());
@@ -79,7 +79,7 @@ public class MoneticoFormBuilder {
     }
 
     public String dataConstructFromMoneticoReturn(Map<String, String> params) {
-        Map<String, String> filtered = new HashMap<>(params);
+        Map<String, String> filtered = new TreeMap<>(params);
         filtered.remove("MAC");
 
         return filtered.entrySet().stream()
