@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 @Component
 public class MoneticoFormBuilder {
 
-    private static final String URL_RETOUR_OK = "https://ask-plateforme.fr/payment/success";
-    private static final String URL_RETOUR_KO = "https://ask-plateforme.fr/payment/failed";
 
     private final Encoder encoder;
     private final MoneticoProperties moneticoProperties;
@@ -55,8 +53,8 @@ public class MoneticoFormBuilder {
                         + "*" + "reference=" + reference
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre="
-                        + "*" + "url_retour_err=" + URL_RETOUR_KO
-                        + "*" + "url_retour_ok=" + URL_RETOUR_OK
+                        + "*" + "url_retour_err=" + moneticoProperties.urlRetourOk()
+                        + "*" + "url_retour_ok=" + moneticoProperties.urlRetourKo()
                         + "*" + "version=" + moneticoProperties.version();
 
         String mac = generateMac(dataToSign, moneticoProperties.key());
@@ -74,8 +72,8 @@ public class MoneticoFormBuilder {
                 reference,
                 moneticoProperties.society(),
                 "",
-                URL_RETOUR_KO,
-                URL_RETOUR_OK,
+                moneticoProperties.urlRetourKo(),
+                moneticoProperties.urlRetourOk(),
                 moneticoProperties.version()
         );
     }
