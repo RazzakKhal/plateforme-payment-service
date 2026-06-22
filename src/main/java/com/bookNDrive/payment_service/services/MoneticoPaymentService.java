@@ -1,8 +1,11 @@
 package com.bookNDrive.payment_service.services;
 
+import com.bookNDrive.payment_service.dtos.sended.PaymentDto;
 import com.bookNDrive.payment_service.dtos.sended.PaymentFormDto;
 import com.bookNDrive.payment_service.entities.Payment;
 import com.bookNDrive.payment_service.enums.PaymentStatus;
+import com.bookNDrive.payment_service.exceptions.PaymentNotFoundException;
+import com.bookNDrive.payment_service.mappers.PaymentMapper;
 import com.bookNDrive.payment_service.repositories.PaymentRepository;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoFormBuilder;
 import com.bookNDrive.payment_service.services.helpers.monetico.MoneticoStatusHandler;
@@ -23,6 +26,7 @@ public class MoneticoPaymentService implements PaymentService {
     private final MoneticoStatusHandler moneticoStatusHandler;
     private final MoneticoFormBuilder moneticoBuilder;
     private final PaymentRepository paymentRepository;
+    private final PaymentMapper paymentMapper;
 
     @Autowired
     public MoneticoPaymentService(
@@ -30,13 +34,15 @@ public class MoneticoPaymentService implements PaymentService {
             FormulaService formulaService,
             MoneticoStatusHandler moneticoStatusHandler,
             MoneticoFormBuilder moneticoBuilder,
-            PaymentRepository paymentRepository
+            PaymentRepository paymentRepository,
+            PaymentMapper paymentMapper
     ) {
         this.userService = userService;
         this.formulaService = formulaService;
         this.moneticoStatusHandler = moneticoStatusHandler;
         this.moneticoBuilder = moneticoBuilder;
         this.paymentRepository = paymentRepository;
+        this.paymentMapper = paymentMapper;
     }
 
     @Override
@@ -74,5 +80,11 @@ public class MoneticoPaymentService implements PaymentService {
     @Override
     public String paymentStatus(Map<String, String> returnParameters) {
         return moneticoStatusHandler.paymentStatus(returnParameters);
+    }
+
+    public PaymentDto getPaymentByReference(String reference) {
+
+        var payment = paymentRepository.findByReference(reference).orElseThrow(() -> new PaymentNotFoundException(reference));
+        return paymentMapper.paymentToPaymentDto(payment);
     }
 }

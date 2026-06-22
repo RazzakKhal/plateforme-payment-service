@@ -1,5 +1,6 @@
 package com.bookNDrive.payment_service.controllers;
 
+import com.bookNDrive.payment_service.dtos.sended.PaymentDto;
 import com.bookNDrive.payment_service.dtos.sended.PaymentFormDto;
 import com.bookNDrive.payment_service.services.MoneticoPaymentService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,11 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -89,5 +88,30 @@ public class MoneticoController {
             @RequestParam Map<String, String> params
     ) throws JsonProcessingException {
         return paymentService.paymentStatus(params);
+    }
+
+    @Operation(
+            summary = "Récupère un paiement depuis sa référence",
+            description = "Récupère un paiement depuis sa référence"
+    )
+    @ApiResponses(value = {
+
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Paiement récupéré avec succès",
+                    content = @Content(schema = @Schema(implementation = PaymentDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Paiement non trouvé en bdd",
+                    content = @Content
+            )
+    }
+    )
+    @GetMapping("/{reference}")
+    public ResponseEntity<PaymentDto> getPaymentByReference(
+            @PathVariable String reference
+    ) {
+        return ResponseEntity.ok(paymentService.getPaymentByReference(reference));
     }
 }

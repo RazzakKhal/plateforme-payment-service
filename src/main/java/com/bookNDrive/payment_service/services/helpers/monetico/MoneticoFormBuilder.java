@@ -53,8 +53,8 @@ public class MoneticoFormBuilder {
                         + "*" + "reference=" + reference
                         + "*" + "societe=" + moneticoProperties.society()
                         + "*" + "texte-libre="
-                        + "*" + "url_retour_err=" + moneticoProperties.urlRetourKo()
-                        + "*" + "url_retour_ok=" + moneticoProperties.urlRetourOk()
+                        + "*" + "url_retour_err=" + moneticoProperties.returnUrl() + "/" + reference
+                        + "*" + "url_retour_ok=" + moneticoProperties.returnUrl() + "/" + reference
                         + "*" + "version=" + moneticoProperties.version();
 
         String mac = generateMac(dataToSign, moneticoProperties.key());
@@ -72,8 +72,8 @@ public class MoneticoFormBuilder {
                 reference,
                 moneticoProperties.society(),
                 "",
-                moneticoProperties.urlRetourKo(),
-                moneticoProperties.urlRetourOk(),
+                moneticoProperties.returnUrl() + "/" + reference,
+                moneticoProperties.returnUrl() + "/" + reference,
                 moneticoProperties.version()
         );
     }
