@@ -9,8 +9,6 @@ public record MoneticoProperties(
         String society,
         String key,
         String paymentUrl,
-        String returnUrl,
-        String urlRetourKo,
-        String urlRetourOk
+        String returnUrl
 ) {
 }
